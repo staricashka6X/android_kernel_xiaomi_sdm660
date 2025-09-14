@@ -13,7 +13,7 @@ jobs:
       ARCH: arm64
       CROSS_COMPILE: aarch64-linux-gnu-
       KERNEL_OUTPUT: out
-      DEFCONFIG: vendor/xiaomi/sdm660-perf_defconfig
+      DEFCONFIG: vendor/xiaomi/wayne-perf_defconfig
 
     steps:
     - name: Checkout source
@@ -30,7 +30,12 @@ jobs:
 
     - name: Configure kernel
       run: |
-        make O=$KERNEL_OUTPUT $DEFCONFIG
+        mkdir -p $KERNEL_OUTPUT
+        make \
+          O=$KERNEL_OUTPUT \
+          ARCH=$ARCH \
+          CROSS_COMPILE=$CROSS_COMPILE \
+          ${{ env.DEFCONFIG }}
 
     - name: Build zImage and dtbs
       run: |
