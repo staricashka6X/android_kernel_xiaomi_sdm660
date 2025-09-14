@@ -35,14 +35,20 @@ jobs:
           CROSS_COMPILE=$CROSS_COMPILE \
           ${{ env.DEFCONFIG }}
 
-    - name: Build kernel
-      run: |
-        make -j$(nproc) \
-          O=$KERNEL_OUTPUT \
-          ARCH=$ARCH \
-          CROSS_COMPILE=$CROSS_COMPILE \
-          CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32
-
+    - name: Build kernel (verbose)
+  run: |
+    make -j$(nproc) \
+      O=$KERNEL_OUTPUT \
+      ARCH=$ARCH \
+      CROSS_COMPILE=$CROSS_COMPILE \
+      CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 \
+      V=1 2>&1 | tee build.log
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+       with:
+         name: build-log
+         path: build.log
+         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
