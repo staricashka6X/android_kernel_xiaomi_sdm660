@@ -2,8 +2,7 @@ name: Build Xiaomi SDM660 Kernel
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -13,7 +12,7 @@ jobs:
       ARCH: arm64
       CROSS_COMPILE: aarch64-linux-gnu-
       KERNEL_OUTPUT: out
-      DEFCONFIG: vendor/xiaomi/wayne-perf_defconfig
+      DEFCONFIG: wayne-perf_defconfig
 
     steps:
     - name: Checkout source
@@ -24,17 +23,26 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y gcc-aarch64-linux-gnu
 
-    - name: Prepare output directory
+    - name: Configure kernel (make defconfig)
       run: |
         mkdir -p $KERNEL_OUTPUT
+        make \
+          O=$KERNEL_OUTPUT \
+          ARCH=$ARCH \
+          CROSS_COMPILE=$CROSS_COMPILE \
+          ${{ env.DEFCONFIG }}
 
-    - name: Build zImage and dtbs
+    - name: Build kernel
       run: |
-        make -j$(nproc) O=$KERNEL_OUTPUT \
-          ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+        make -j$(nproc) \
+          O=$KERNEL_OUTPUT \
+          ARCH=$ARCH \
+          CROSS_COMPILE=$CROSS_COMPILE
 
-    - name: Archive artifacts
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: kernel-build
-        path: $KERNEL_OUTPUT/arch/arm64/boot/Image.gz-dtb
+        path: |
+          ${{ env.KERNEL_OUTPUT }}/arch/arm64/boot/Image.gz-dtb
+          ${{ env.KERNEL_OUTPUT }}/Module.symvers
