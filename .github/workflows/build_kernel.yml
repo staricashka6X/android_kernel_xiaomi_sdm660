@@ -28,15 +28,6 @@ jobs:
       run: |
         mkdir -p $KERNEL_OUTPUT
 
-    - name: Configure kernel
-      run: |
-        mkdir -p $KERNEL_OUTPUT
-        make \
-          O=$KERNEL_OUTPUT \
-          ARCH=$ARCH \
-          CROSS_COMPILE=$CROSS_COMPILE \
-          ${{ env.DEFCONFIG }}
-
     - name: Build zImage and dtbs
       run: |
         make -j$(nproc) O=$KERNEL_OUTPUT \
