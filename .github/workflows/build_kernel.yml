@@ -1,0 +1,44 @@
+name: Build Xiaomi SDM660 Kernel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+      KERNEL_OUTPUT: out
+      DEFCONFIG: vendor/xiaomi/sdm660-perf_defconfig
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Install cross-compiler
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu
+
+    - name: Prepare output directory
+      run: |
+        mkdir -p $KERNEL_OUTPUT
+
+    - name: Configure kernel
+      run: |
+        make O=$KERNEL_OUTPUT $DEFCONFIG
+
+    - name: Build zImage and dtbs
+      run: |
+        make -j$(nproc) O=$KERNEL_OUTPUT \
+          ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: kernel-build
+        path: $KERNEL_OUTPUT/arch/arm64/boot/Image.gz-dtb
