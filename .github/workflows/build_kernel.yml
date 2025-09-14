@@ -43,4 +43,4 @@ jobs:
         name: kernel-build
         path: |
           ${{ env.KERNEL_OUTPUT }}/arch/arm64/boot/Image.gz-dtb
-          ${{ env.KERNEL_OUTPUT }}/Module.symvers
+          ${{ env.KERNEL_OUTPUT }}/Module.symvers 
